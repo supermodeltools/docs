@@ -11,9 +11,9 @@ cd /path/to/your/repo
 supermodel
 ```
 
-On first run, `supermodel` opens the setup flow automatically. It authenticates you, confirms the repo, offers to install the Claude Code hook, and enables `.graph.*` sidecar files.
+If no config exists, `supermodel` opens the setup flow automatically. It authenticates you, confirms the repo, offers to install the Claude Code hook, and enables `.graph.*` sidecar files.
 
-After setup, the same command starts the live graph watcher:
+After setup, or on any already configured repo, the same command starts the live graph watcher:
 
 ```text
 [supermodel] [step:1] Building code graph
@@ -21,7 +21,7 @@ After setup, the same command starts the live graph watcher:
 [supermodel] [step:3] Ready — listening on UDP :7734
 ```
 
-Leave it running while you code. It updates the graph when files change, writes graph sidecars next to source files, and cleans generated sidecars when you stop it with `Ctrl+C`.
+Leave it running while you code. It refreshes from hook notifications; if you are not using a hook, run `supermodel --fs-watch` to watch local file changes directly. It writes graph sidecars next to source files and cleans generated sidecars when you stop it with `Ctrl+C`.
 
 ## 2. Tell your agent the graph files exist
 
