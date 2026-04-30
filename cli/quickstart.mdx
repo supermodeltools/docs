@@ -1,31 +1,38 @@
 ---
 title: 'Quickstart'
-description: 'Authenticate and run your first analysis'
+description: 'Start the live graph watcher'
 icon: 'bolt'
 ---
 
-## 1. Authenticate
-
-```bash
-supermodel login
-```
-
-Opens your browser, creates an API key, and saves it to `~/.supermodel/config.yaml`. For CI, pass the key directly:
-
-```bash
-supermodel login --token smsk_live_...
-```
-
-## 2. Analyze a repo
+## 1. Run Supermodel in your repo
 
 ```bash
 cd /path/to/your/repo
-supermodel analyze
+supermodel
 ```
 
-Uploads the repo, runs call graph + dependency + domain analysis, caches the result locally by content hash, and writes `.graph.*` sidecar files next to each source file.
+On first run, `supermodel` opens the setup flow automatically. It authenticates you, confirms the repo, offers to install the Claude Code hook, and enables `.graph.*` sidecar files.
 
-## 3. Use the results
+After setup, the same command starts the live graph watcher:
+
+```text
+[supermodel] [step:1] Building code graph
+[supermodel] [step:2] Starting listeners
+[supermodel] [step:3] Ready — listening on UDP :7734
+```
+
+Leave it running while you code. It updates the graph when files change, writes graph sidecars next to source files, and cleans generated sidecars when you stop it with `Ctrl+C`.
+
+## 2. Tell your agent the graph files exist
+
+```bash
+supermodel skill >> CLAUDE.md
+# or AGENTS.md, .cursorrules, etc.
+```
+
+The prompt explains the naming convention (`Foo.py` → `Foo.graph.py`) and tells your agent to read the graph file before the source file.
+
+## 3. Use the live graph
 
 | Goal | Command |
 |---|---|
@@ -36,9 +43,19 @@ Uploads the repo, runs call graph + dependency + domain analysis, caches the res
 | Token-efficient context for one file | `supermodel focus path/to/file.go` |
 | Print the full graph | `supermodel graph` |
 
-Subsequent commands reuse the cached graph automatically. Pass `--force` to any command to bypass the cache.
+These commands reuse the cached graph automatically. Pass `--force` to bypass the cache.
 
-## 4. Configure (optional)
+## 4. One-shot analysis
+
+Use `analyze` when you want to build or refresh the graph once and exit instead of keeping the watcher running:
+
+```bash
+supermodel analyze
+```
+
+`analyze` uploads the repo, runs call graph + dependency + domain analysis, caches the result locally by content hash, and writes `.graph.*` sidecar files next to source files. Add `--no-shards` to skip writing sidecars.
+
+## 5. Configure (optional)
 
 Settings live at `~/.supermodel/config.yaml`. Environment variables override file values.
 
