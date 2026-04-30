@@ -1,0 +1,157 @@
+---
+title: 'Graph Files'
+description: 'How .graph.* sidecars give AI agents a live map of your codebase'
+icon: 'diagram-project'
+---
+
+Supermodel's CLI workflow is built around graph files: small `.graph.*` sidecars written next to your source files.
+
+If your repo has this file:
+
+```text
+src/cache.ts
+```
+
+Supermodel writes this file next to it:
+
+```text
+src/cache.graph.ts
+```
+
+The graph file is plain text. Your AI coding agent can read it with the same tools it already uses to read source code: `cat`, `grep`, editor context, or normal file search. No MCP server is required. No special editor integration is required.
+
+## Why graph files live next to source files
+
+AI agents spend a lot of time rebuilding a map of your repo. Before they can safely change one function, they need to know:
+
+- What imports this file
+- What this file imports
+- What functions call this function
+- What this function calls
+- What could break if this file changes
+
+Without graph files, the agent usually discovers that by searching over and over. It greps for names, opens callers, opens dependencies, follows imports, and still misses relationships.
+
+Supermodel does that mapping once, writes the answer next to the code, and keeps it fresh while the watcher runs.
+
+## What is inside a graph file
+
+A graph file is a compact text summary of the relationships around one source file.
+
+Most graph files include three sections:
+
+```text
+[deps]
+imports: internal/config, internal/api
+imported_by: cmd/analyze.go, cmd/graph.go
+
+[calls]
+Run calls createZip at internal/analyze/zip.go:41
+Run calls Client.Analyze at internal/api/client.go:52
+Run is called by newAnalyzeCommand at cmd/analyze.go:34
+
+[impact]
+risk: medium
+domains: CLI, API client
+direct dependents: cmd/analyze.go, cmd/graph.go
+transitive dependents: cmd/audit.go, cmd/share.go
+```
+
+The exact content depends on the language and the graph data available for that file. The important part is the shape: dependencies, calls, and impact are already summarized before the agent starts reading source.
+
+## How agents use graph files
+
+The recommended pattern is:
+
+1. Run the watcher:
+
+```bash
+supermodel
+```
+
+2. Tell your agent that graph files exist:
+
+```bash
+supermodel skill >> CLAUDE.md
+```
+
+3. When the agent works on `src/cache.ts`, it reads `src/cache.graph.ts` first.
+
+That gives the agent the map before it reads the implementation. It can still open source files, run tests, and grep when needed. The difference is that it starts with structure instead of guessing structure from raw text.
+
+## Watcher vs one-shot analysis
+
+The bare `supermodel` command is the live graph watcher:
+
+```bash
+supermodel
+```
+
+It builds the graph, writes sidecars, listens for file-change notifications, and refreshes affected graph files as you code. Stop it with `Ctrl+C`; generated sidecars are cleaned up on shutdown.
+
+Use `analyze` when you only want one graph refresh and then exit:
+
+```bash
+supermodel analyze
+```
+
+Both commands write `.graph.*` sidecars by default. Use `--no-shards` with `analyze` if you want cache/API output without writing graph files:
+
+```bash
+supermodel analyze --no-shards
+```
+
+## Cache and freshness
+
+Supermodel caches analysis results locally by repo content hash. Commands like `dead-code`, `blast-radius`, `focus`, `find`, and `graph` reuse that cache when possible.
+
+Use `--force` on analysis commands when you want to bypass the cache:
+
+```bash
+supermodel analyze --force
+supermodel dead-code --force
+supermodel graph --force
+```
+
+Use `clean` when you want to remove generated graph files without running the watcher:
+
+```bash
+supermodel clean
+```
+
+Preview cleanup first:
+
+```bash
+supermodel clean --dry-run
+```
+
+## Before and after
+
+Without graph files, a typical agent task starts like this:
+
+```text
+grep for parseConfig
+open config.ts
+grep for imports
+open caller files
+grep again for indirect callers
+guess which tests matter
+```
+
+With graph files, the task starts like this:
+
+```text
+open config.graph.ts
+read [deps], [calls], and [impact]
+open the relevant source and test files
+make the change
+```
+
+The graph file does not replace source code. It gives the agent a map before it reads the source code.
+
+## Next
+
+- Start with the [CLI quickstart](/cli/quickstart)
+- Read the [`supermodel` watcher reference](/cli/commands/supermodel)
+- Use [`analyze`](/cli/commands/analyze) for one-shot graph generation
+- Use [`skill`](/cli/commands/skill) to add graph-file instructions to your agent prompt
