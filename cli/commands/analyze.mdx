@@ -17,7 +17,6 @@ supermodel analyze [path] [flags]
 
 | Flag | Description |
 |---|---|
-| `--three-file` | Generate `.calls`/`.deps`/`.impact` files instead of a single `.graph` |
 | `--no-shards` | Skip writing `.graph.*` shard files |
 | `--force` | Re-analyze even if a cached result exists |
 | `-o, --output` | Output format: `human` \| `json` |
@@ -28,9 +27,6 @@ supermodel analyze [path] [flags]
 ```bash
 # Analyze the current directory
 supermodel analyze
-
-# Generate three-file shards (recommended)
-supermodel analyze --three-file
 
 # Re-analyze without using the cache, output JSON
 supermodel analyze --force -o json

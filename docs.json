@@ -55,7 +55,7 @@
           {
             "group": "Commands",
             "pages": [
-              "cli/commands/watch",
+              "cli/commands/supermodel",
               "cli/commands/analyze",
               "cli/commands/audit",
               "cli/commands/blast-radius",

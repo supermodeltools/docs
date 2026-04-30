@@ -6,12 +6,6 @@ icon: 'download'
 
 A single Go binary, no runtime dependencies.
 
-## Homebrew
-
-```bash
-brew install supermodeltools/tap/supermodel
-```
-
 ## curl
 
 ```bash
@@ -44,5 +38,5 @@ supermodel update --check    # check without installing
 ```bash
 supermodel logout
 rm -rf ~/.supermodel
-brew uninstall supermodel    # or remove the binary from your PATH
+rm "$(command -v supermodel)"    # or remove the binary from your PATH manually
 ```
