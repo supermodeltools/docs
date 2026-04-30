@@ -13,7 +13,7 @@ title: Introduction
 
 ## CLI quickstart
 
-The fastest path: install the binary and run `setup`. The wizard authenticates you, detects your repo, offers to install the Claude Code hook, and starts the live graph daemon — one command, end to end.
+The fastest path: install the binary, go to your repo, and run `supermodel`. If no config exists, it handles setup automatically; after that it starts the live graph watcher.
 
 ### 1. Install
 
@@ -23,21 +23,16 @@ curl -fsSL https://supermodeltools.com/install.sh | sh
 
 Other options: `npm install -g @supermodeltools/cli` or build from source. See [Installation](/cli/install).
 
-### 2. Run the setup wizard
+### 2. Start the live graph watcher
 
 ```bash
 cd /path/to/your/repo
-supermodel setup
+supermodel
 ```
 
-The wizard walks four steps:
+If no config exists, `supermodel` launches setup automatically. It authenticates you, confirms the repo, offers to install the Claude Code hook, and enables writing `.graph.*` sidecars next to source files.
 
-1. **Authentication** — opens your browser to create an API key and saves it to `~/.supermodel/config.yaml`.
-2. **Repository** — detects the git root and confirms the directory.
-3. **Agent hook** — if Claude Code is installed, offers to add a `PostToolUse` hook so `.graph.*` files refresh on every `Write`/`Edit`. Cursor, Copilot, Windsurf, and Aider read the files directly — no hook needed.
-4. **Shard mode** — enables writing `.graph.*` sidecars next to your source files.
-
-It then runs the live graph daemon for you. Press `Ctrl+C` to stop.
+Then `supermodel` builds the graph and stays running as the live watcher. Press `Ctrl+C` to stop and clean generated sidecars.
 
 ### 3. Tell your agent the sidecars exist
 
@@ -48,11 +43,13 @@ supermodel skill >> CLAUDE.md
 # or AGENTS.md, .cursorrules, etc.
 ```
 
+Use `>>` to append to existing instructions instead of replacing them. If the Supermodel block is already present, skip this step or remove the old block before running it again.
+
 The prompt explains the naming convention (`Foo.py` → `Foo.graph.py`), the three sections inside each sidecar (`[deps]`, `[calls]`, `[impact]`), and tells the agent to read the sidecar before the source file.
 
 ### 4. What you get
 
-After setup runs, each source file gets one `.graph.*` sidecar with dependency, call, and impact sections:
+After the watcher runs, each source file gets one `.graph.*` sidecar with dependency, call, and impact sections:
 
 ```
 src/
@@ -85,13 +82,15 @@ Your agent reads these via `cat` and `grep` like any other file. No prompt chang
 
 ### 5. Keep it running
 
-The bare `supermodel` command is the live graph daemon. Run it any time you want graph files to stay fresh as you code:
+The bare `supermodel` command is the live graph watcher. Run it any time you want graph files to stay fresh as you code:
 
 ```bash
 supermodel
 ```
 
-For one-shot analysis (no daemon), use:
+Live refreshes are driven by hook notifications. If you are not using a hook, run `supermodel --fs-watch` to watch local file changes directly.
+
+For one-shot analysis (no watcher), use:
 
 ```bash
 supermodel analyze
@@ -109,4 +108,4 @@ Once a graph is cached, every other command reuses it instantly:
 | Find usages of a symbol | `supermodel find handleRequest` |
 | Token-efficient context for one file | `supermodel focus path/to/file.go` |
 
-See the [command reference](/cli/commands/analyze) for every flag and example.
+Start with the [`supermodel` watcher reference](/cli/commands/supermodel) or the [`analyze` one-shot reference](/cli/commands/analyze).
