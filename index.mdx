@@ -86,7 +86,7 @@ The bare `supermodel` command is the live graph watcher. Run it any time you wan
 supermodel
 ```
 
-For one-shot analysis (no daemon), use:
+For one-shot analysis (no watcher), use:
 
 ```bash
 supermodel analyze
@@ -104,4 +104,4 @@ Once a graph is cached, every other command reuses it instantly:
 | Find usages of a symbol | `supermodel find handleRequest` |
 | Token-efficient context for one file | `supermodel focus path/to/file.go` |
 
-See the [command reference](/cli/commands/analyze) for every flag and example.
+Start with the [`supermodel` watcher reference](/cli/commands/supermodel) or the [`analyze` one-shot reference](/cli/commands/analyze).
