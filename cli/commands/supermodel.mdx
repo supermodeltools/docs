@@ -1,6 +1,6 @@
 ---
 title: 'supermodel'
-description: 'Run the watch daemon (the bare command)'
+description: 'Run the live graph daemon (the bare command)'
 ---
 
 Runs a full analysis on startup (using the cached graph if available), then enters daemon mode. Listens for file-change notifications from the `supermodel hook` command and incrementally re-renders affected `.graph.*` sidecar files. Press Ctrl+C to stop and remove graph files.
@@ -13,7 +13,7 @@ supermodel [flags]
 
 ## Description
 
-The bare `supermodel` command is the watch daemon. It does not take a subcommand — running it with no arguments starts the long-running process.
+The bare `supermodel` command is the live graph daemon. It does not take a subcommand — running it with no arguments starts the long-running process.
 
 By default the daemon listens on UDP (port `7734`) for change notifications pushed by `supermodel hook`. For environments without a hook integration, pass `--fs-watch` to also poll git state (`HEAD`, index mtime, dirty files) every `--poll-interval`.
 
@@ -36,7 +36,7 @@ By default the daemon listens on UDP (port `7734`) for change notifications push
 # Start the daemon in the current directory
 supermodel
 
-# Watch a specific project, poll git state as a fallback
+# Run on a specific project, poll git state as a fallback
 supermodel --dir ./my-project --fs-watch
 
 # Use a custom UDP port if 7734 is taken

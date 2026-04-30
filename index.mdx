@@ -13,7 +13,7 @@ title: Introduction
 
 ## CLI quickstart
 
-The fastest path: install the binary and run `setup`. The wizard authenticates you, detects your repo, offers to install the Claude Code hook, and starts the watch daemon — one command, end to end.
+The fastest path: install the binary and run `setup`. The wizard authenticates you, detects your repo, offers to install the Claude Code hook, and starts the live graph daemon — one command, end to end.
 
 ### 1. Install
 
@@ -21,7 +21,7 @@ The fastest path: install the binary and run `setup`. The wizard authenticates y
 curl -fsSL https://supermodeltools.com/install.sh | sh
 ```
 
-Other options: `brew install supermodeltools/tap/supermodel`, `npm install -g @supermodeltools/cli`, or build from source. See [Installation](/cli/install).
+Other options: `npm install -g @supermodeltools/cli` or build from source. See [Installation](/cli/install).
 
 ### 2. Run the setup wizard
 
@@ -37,7 +37,7 @@ The wizard walks four steps:
 3. **Agent hook** — if Claude Code is installed, offers to add a `PostToolUse` hook so `.graph.*` files refresh on every `Write`/`Edit`. Cursor, Copilot, Windsurf, and Aider read the files directly — no hook needed.
 4. **Shard mode** — enables writing `.graph.*` sidecars next to your source files.
 
-It then runs the watch daemon for you. Press `Ctrl+C` to stop.
+It then runs the live graph daemon for you. Press `Ctrl+C` to stop.
 
 ### 3. Tell your agent the sidecars exist
 
@@ -52,31 +52,27 @@ The prompt explains the naming convention (`Foo.py` → `Foo.graph.py`), the thr
 
 ### 4. What you get
 
-After setup runs with `--three-file` (recommended), each source file gets three sidecars:
+After setup runs, each source file gets one `.graph.*` sidecar with dependency, call, and impact sections:
 
 ```
 src/
 ├── login.go
-├── login.calls.go     ← who calls what, with file:line
-├── login.deps.go      ← imports and imported-by
-└── login.impact.go    ← risk level, domains, blast radius
+└── login.graph.go     ← deps, calls, impact, domains, and blast radius
 ```
 
-Real output from running the CLI on its own source (`cmd/login.*.go`):
+Example output shape from a generated graph file:
 
 ```go
-// cmd/login.deps.go
+// cmd/login.graph.go
 // [deps]
 // imports     internal/auth/doc.go
 // imports     internal/auth/handler.go
 // imported-by main.go
 
-// cmd/login.calls.go
 // [calls]
 // init → LoginWithToken    internal/auth/handler.go:109
 // init → Login             internal/auth/handler.go:29
 
-// cmd/login.impact.go
 // [impact]
 // risk        MEDIUM
 // domains     CoreConfig · SupermodelAPI
@@ -89,7 +85,7 @@ Your agent reads these via `cat` and `grep` like any other file. No prompt chang
 
 ### 5. Keep it running
 
-The bare `supermodel` command is the watch daemon. Run it any time you want sidecars to stay fresh as you code:
+The bare `supermodel` command is the live graph daemon. Run it any time you want graph files to stay fresh as you code:
 
 ```bash
 supermodel
@@ -98,7 +94,7 @@ supermodel
 For one-shot analysis (no daemon), use:
 
 ```bash
-supermodel analyze --three-file
+supermodel analyze
 ```
 
 ### 6. What to do with the graph
